@@ -107,7 +107,9 @@ function fetchResult(){
 		execSync('scp query.sql ' + username + '@' + ip + ':~/; rm query.sql');
 		return execSync('ssh -l "' + username + '" "' + ip + '" "' + dbConnectString + '; rm query.sql;"').toString();	
 	}
-	return execSync(dbConnectString).toString();	
+	let result = execSync(dbConnectString).toString();
+	fs.unlinkSync('query.sql');
+	return result;
 }
 
 function fetchTables(dbName){
