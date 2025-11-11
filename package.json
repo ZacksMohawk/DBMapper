@@ -9,7 +9,23 @@
   "license": "ISC",
   "devDependencies": {
     "cli-progress": "^3.12.0",
-    "prompt-sync": "^4.2.0"
+    "prompt-sync": "^4.2.0",
+    "properties-reader": "^2.3.0"
   },
-  "description": "## Overview"
+  "description": "## Overview",
+  "dependencies": {
+    "ansi-regex": "^5.0.1",
+    "emoji-regex": "^8.0.0",
+    "is-fullwidth-code-point": "^3.0.0",
+    "string-width": "^4.2.3",
+    "strip-ansi": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZacksMohawk/DBMapper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ZacksMohawk/DBMapper/issues"
+  },
+  "homepage": "https://github.com/ZacksMohawk/DBMapper#readme"
 }
