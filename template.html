@@ -1,0 +1,77 @@
+<html>
+    <head>
+        <title>DBMapper Visualisation</title>
+        <style>
+            body {
+                font-family: Arial;
+                font-size: 14px;
+            }
+            a {
+                text-decoration: none; color: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="padding: 20px; font-size: 18px;"><<title>></div>
+        <div id="dbHousingDiv" style="display: inline-block; vertical-align: top; border: solid 1px black;">
+        <div style="vertical-align: top; padding: 20px; border-bottom: solid 1px black;">Databases</div>
+        <div id="dbDiv" style="display: inline-block; vertical-align: top; padding: 20px;"></div></div>
+        <div id="tableHousingDiv" style="display: inline-block; vertical-align: top; border: solid 1px black; display: none;">
+        <div style="vertical-align: top; padding: 20px; border-bottom: solid 1px black;">Tables</div>
+        <div id="tableDiv" style="display: inline-block; vertical-align: top; padding: 20px;"></div></div>
+        <div id="fieldHousingDiv" style="display: inline-block; vertical-align: top; border: solid 1px black; display: none;">
+        <div style="vertical-align: top; padding: 20px; border-bottom: solid 1px black;">Fields</div>
+        <div id="fieldDiv" style="display: inline-block; vertical-align: top; padding: 20px;"></div></div>
+    </body>
+</html>
+<script type="text/javascript">
+    var dbMap = <<dbMap>>;
+    var selectedDb, selectedTable;
+    var spacer = "&nbsp;&nbsp;&nbsp;&nbsp;";
+    function setDbDiv(){
+      var dbList = Object.keys(dbMap);
+      var dbDivContent = "";
+      for (let index = 0; index < dbList.length; index++){
+        var dbName = dbList[index];
+        var displayDbName = dbName == selectedDb ? '<span style="color: #44a63e;"><b>' + dbName + '</b></span>' : dbName;
+        dbDivContent += '<a href="" onclick="return openDB(\'' + dbName + '\')">' + displayDbName + '</a><br />';
+      }
+      document.getElementById("dbDiv").innerHTML = dbDivContent;
+      return false;
+    }
+    function openDB(dbName){
+      selectedDb = dbName;
+      selectedTable = null;
+      renderTables(dbName)
+      setDbDiv()
+      document.getElementById("tableHousingDiv").style.display = "inline-block";
+      document.getElementById("fieldDiv").innerHTML = "";
+      document.getElementById("fieldHousingDiv").style.display = "none";
+      return false;
+    }
+    function renderTables(dbName){
+      var dbObject = dbMap[dbName];
+      var tableNames = Object.keys(dbObject);
+      var tableDivContent = "";  for (let index = 0; index < tableNames.length; index++){
+        var tableName = tableNames[index];
+        var displayTableName = tableName == selectedTable ? '<span style="color: #44a63e;"><b>' + tableName + '</b></span>' : tableName;
+        tableDivContent += '<a href="" onclick="return openTable(\'' + dbName + '\',\'' + tableName + '\')">' + displayTableName + '</a><br />';
+      }
+      document.getElementById("tableDiv").innerHTML = tableDivContent;
+    }
+    function openTable(dbName, tableName){
+      selectedTable = tableName;
+      var tableObject = dbMap[dbName][tableName];
+      var fieldNames = Object.keys(tableObject);
+      var fieldDivContent = "";  for (let index = 0; index < fieldNames.length; index++){
+        var fieldName = fieldNames[index];
+        var fieldNameObject = dbMap[dbName][tableName][fieldName];
+        fieldDivContent += fieldName + spacer + fieldNameObject.type + spacer + (fieldNameObject.nullable == "f" ? "NOT NULLABLE" : "NULLABLE") + "</br>";
+      }
+      document.getElementById("fieldDiv").innerHTML = fieldDivContent;
+      document.getElementById("fieldHousingDiv").style.display = "inline-block";
+      renderTables(dbName);
+      return false;
+    }
+    setDbDiv();
+</script>
