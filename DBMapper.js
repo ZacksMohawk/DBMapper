@@ -225,7 +225,7 @@ function chooseMap(){
 		Logger.log('\t' + (index + 1) + '. ' + mapFile);
 	}
 	Logger.log();
-	let dbMapChoice = prompt('Choose (1-' + mapFiles.length + '): ');
+	let dbMapChoice = prompt(mapFiles.length == 1 ? 'Choose: ' : 'Choose (1-' + mapFiles.length + '): ');
 	if (!dbMapChoice){
 		process.exit(0);
 	}
