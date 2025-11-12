@@ -55,3 +55,9 @@ From any location, having run the relevant setup script:
 	dbmapper
 
 The application will then attempt to connect to the DB and produce a JSON file containing the DB's structural data. You will then be asked if you would like to visualise the results, where selecting 'y' will open up an interactive HTML page allowing you to explore the results
+
+To view any pre-existing maps, having run the relevant setup script, the following command will present you with a list of options:
+
+	dbmaps
+
+

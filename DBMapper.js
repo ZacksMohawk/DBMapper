@@ -1,5 +1,5 @@
 global.appType = "DBMapper";
-global.version = "1.0.0";
+global.version = "1.1.0";
 
 const fs = require('fs');
 const PropertiesReader = require('properties-reader');
@@ -17,6 +17,13 @@ Logger.log();
  */
 
 let dbMap = {};
+
+if (!fs.existsSync('maps')){
+	fs.mkdirSync('maps');
+}
+if (!fs.existsSync('pages')){
+	fs.mkdirSync('pages');
+}
 
 // command line params
 let configPath;
@@ -43,8 +50,14 @@ let dbConnectString = properties.get('main.dbConnectString');
 
 let validDbTypes = ['MySQL', 'CockroachDB'];
 
-let exportFilePath = 'dbMap_' + dbConnectionName + '_' + ip + '.json';
+let exportFilePath = 'maps/dbMap_' + dbConnectionName + '_' + ip + '.json';
 let multibar, progressBar1, progressBar2;
+
+
+if (process.argv.indexOf("-dbMaps") != -1){
+	chooseMap();
+	process.exit(0);
+}
 
 function mapDb(){
 	validateDbType();
@@ -144,8 +157,8 @@ function extractTableName(tableLine){
 	if (dbType == "MySQL"){
 		return tableLine;	
 	}
-	if (dbType == "MySQL"){
-		return tableLine[index].split("\t")[1];	
+	if (dbType == "CockroachDB"){
+		return tableLine.split("\t")[1];
 	}
 }
 
@@ -182,11 +195,15 @@ function visualiseFromFile(dbFilePath){
 }
 
 function visualise(dbFilePath, dbMap){
-	let pageContent = fs.readFileSync('template.html', 'utf8').replaceAll("<<dbMap>>", JSON.stringify(dbMap)).replaceAll("<<title>>", dbConnectionName);
+	let dbMapTitle = dbFilePath.replaceAll('maps/dbMap_', '');
+	dbMapTitle = dbMapTitle.substring(0, dbMapTitle.indexOf('_'));
+	let pageContent = fs.readFileSync('template.html', 'utf8')
+		.replaceAll("<<dbMap>>", JSON.stringify(dbMap))
+		.replaceAll("<<title>>", dbMapTitle);
 
-	let htmlPage = dbFilePath.replace("json", "html");
-	fs.writeFileSync(htmlPage, pageContent);
-	execSync('open -a "Google Chrome" ' + htmlPage);
+	let htmlPagePath = dbFilePath.replace("json", "html").replaceAll('maps/', 'pages/');
+	fs.writeFileSync(htmlPagePath, pageContent);
+	execSync('open -a "Google Chrome" ' + htmlPagePath);
 }
 
 function validateDbType(){
@@ -194,6 +211,36 @@ function validateDbType(){
 		Logger.log("Invalid dbType. Must be one of: " + validDbTypes.toString());
 		process.exit(0);
 	}
+}
+
+function chooseMap(){
+	let mapFiles = fs.readdirSync('maps');
+	if (mapFiles.length == 0){
+		Logger.log('No pre-existing map files found. Aborting');	
+		process.exit(0);
+	}
+	Logger.log('Please choose which DB Map to visualise\n');
+	for (let index = 0; index < mapFiles.length; index++){
+		let mapFile = mapFiles[index].replaceAll('.json', '').replaceAll('dbMap_', '');
+		Logger.log('\t' + (index + 1) + '. ' + mapFile);
+	}
+	Logger.log();
+	let dbMapChoice = prompt('Choose (1-' + mapFiles.length + '): ');
+	if (!dbMapChoice){
+		process.exit(0);
+	}
+	dbMapChoice = dbMapChoice.trim();
+	if (isNaN(dbMapChoice)){
+		Logger.log("Not a number. Aborting");
+		process.exit(0);
+	}
+	dbMapChoice = parseInt(dbMapChoice);
+	if (dbMapChoice < 1 || dbMapChoice > mapFiles.length){
+		Logger.log("Invalid choice. Aborting");
+		process.exit(0);
+	}
+
+	visualiseFromFile('maps/' + mapFiles[dbMapChoice - 1]);
 }
 
 mapDb();
